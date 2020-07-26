@@ -1,9 +1,9 @@
 const path = require('path');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
-
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
@@ -15,7 +15,7 @@ const fileStorage = multer.diskStorage({
     cb(null, 'images');
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString().replace(/:/g, '-')  + '-' + file.originalname);
+    cb(null, new Date().toISOString() + '-' + file.originalname);
   }
 });
 
@@ -31,6 +31,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
@@ -54,14 +55,15 @@ app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({ message: message });
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
 });
 
 mongoose
   .connect(
-    'mongodb+srv://zabhitak:zabhitak@cluster0.gcuox.mongodb.net/Posts?retryWrites=true&w=majority'
+    'Your MONGDB ATLAS'
   )
-  .then((result) => {
+  .then(result => {
     app.listen(8080);
   })
-  .catch((err) => console.log(err));
+  .catch(err => console.log(err));
